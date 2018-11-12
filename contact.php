@@ -25,7 +25,9 @@ $request_params += array(
     'name' => '',
     'affiliation' => '',
     'email' => '',
+    'phone' => '',
     'contents' => '',
+    'privacy' => false,
 );
 
 // お問い合わせ種類
@@ -62,10 +64,24 @@ if ('' == strval($email) || 256 < strlen($email) || !check_mail($email)) {
     exit_error(400);
 }
 
+// 電話番号
+$phone = $request_params['phone'];
+if (25 < mb_strlen($phone)) {
+    output_log("パラメータチェックエラー"."\n■phone\n".$phone, $request_body);
+    exit_error(400);
+}
+
 // お問い合わせ内容
 $contents = $request_params['contents'];
 if ('' == strval($contents) || 2000 < mb_strlen($contents)) {
     output_log("パラメータチェックエラー"."\n■contents\n".$contents, $request_body);
+    exit_error(400);
+}
+
+// 個人情報の取り扱いについて
+$privacy = $request_params['privacy'];
+if (!is_bool($privacy) || !$privacy) {
+    output_log("パラメータチェックエラー"."\n■privacy\n".$privacy, $request_body);
     exit_error(400);
 }
 
@@ -79,6 +95,7 @@ $mail_body .= "\n[お問い合わせ種類]"."\n".$types[$type]."\n";
 $mail_body .= "\n[お名前]"."\n".$name."\n";
 $mail_body .= "\n[ご所属]"."\n".$affiliation."\n";
 $mail_body .= "\n[メールアドレス]"."\n".$email."\n";
+$mail_body .= "\n[電話番号]"."\n".$phone."\n";
 $mail_body .= "\n[お問い合わせ内容]"."\n".$contents."\n";
 $mail_body .= "------------------------------------------------------\n";
 $mail_body .= "\n".date('Y/m/d (D) H:i:s');
@@ -99,6 +116,7 @@ $remail_body .= "\n[お問い合わせ種類]"."\n".$types[$type]."\n";
 $remail_body .= "\n[お名前]"."\n".$name."\n";
 $remail_body .= "\n[ご所属]"."\n".$affiliation."\n";
 $remail_body .= "\n[メールアドレス]"."\n".$email."\n";
+$remail_body .= "\n[電話番号]"."\n".$phone."\n";
 $remail_body .= "\n[お問い合わせ内容]"."\n".$contents."\n";
 $remail_body .= "------------------------------------------------------\n";
 $remail_body .= "\n確認後、返信させていただきます。少々お待ちください。\n";
