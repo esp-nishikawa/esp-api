@@ -2,21 +2,24 @@
 include dirname(__FILE__) . '/common.php';
 $domain = 'esoftpowers.com';
 
+// ドメインチェック
+if (!check_domain($domain)) {
+    output_log("ドメインチェックエラー"."\n■origin\n".$_SERVER['HTTP_ORIGIN']."\n■referer\n".$_SERVER['HTTP_REFERER'], $request_body);
+    exit_error(403);
+}
+
+// メソッドチェック
+if (!check_method('POST')) {
+    output_log("メソッドチェックエラー"."\n■method\n".$_SERVER['REQUEST_METHOD'], $request_body);
+    exit_error(403);
+}
+
 // リクエストパラメータ
 $request_body = file_get_contents('php://input');
-$request_json = str_replace(array("\n","\r"), "", $request_body); 
-$request_json = preg_replace('/([{,]+)(\s*)([^"]+?)\s*:/', '$1"$3":', $request_json);
-$request_json = preg_replace('/(,)\s*}$/','}', $request_json);
-$request_params = json_decode($request_json, true);
+$request_params = decode_json_request($request_body);
 if (json_last_error() != JSON_ERROR_NONE) {
     output_log("JSONデコードエラー"."\n■message\n".json_last_error_msg(), $request_body);
     exit_error(400);
-}
-
-// リファラチェック
-if (!check_referer($domain)) {
-    output_log("リファラチェックエラー"."\n■referer\n".$_SERVER['HTTP_REFERER'], $request_body);
-    exit_error(403);
 }
 
 // リクエストパラメータのチェック

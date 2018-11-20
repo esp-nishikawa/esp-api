@@ -122,13 +122,49 @@ function output_log($message, $request = NULL) {
 }
 
 /**
- * リファラチェック
+ * ドメインチェック
  */
-function check_referer($domain){
-    if (strpos($_SERVER['HTTP_REFERER'], $domain) === false) {
+function check_domain($domain){
+    if (isset($_SERVER['HTTP_ORIGIN'])) {
+        if (strpos($_SERVER['HTTP_ORIGIN'], $domain) === false) {
+            return false;
+        }
+        header("Access-Control-Allow-Origin: ".$_SERVER['HTTP_ORIGIN']);
+    } else {
+        if (strpos($_SERVER['HTTP_REFERER'], $domain) === false) {
+            return false;
+        }
+    }
+    return true;
+}
+
+/**
+ * メソッドチェック
+ */
+function check_method($method){
+    if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+        if (isset($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_METHOD'])) {
+            header("Access-Control-Allow-Methods: ".$method);
+        }
+        if (isset($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS'])) {
+            header("Access-Control-Allow-Headers: ".$_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS']);
+        }
+        exit;
+    }
+    if ($_SERVER['REQUEST_METHOD'] != $method) {
         return false;
     }
     return true;
+}
+
+/**
+ * JSONデコード
+ */
+function decode_json_request($request){
+    $json = str_replace(array("\n","\r"), "", $request); 
+    $json = preg_replace('/([{,]+)(\s*)([^"]+?)\s*:/', '$1"$3":', $json);
+    $json = preg_replace('/(,)\s*}$/','}', $json);
+    return json_decode($json, true);
 }
 
 /**
