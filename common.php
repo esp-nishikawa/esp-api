@@ -118,7 +118,7 @@ function output_log($message, $request = NULL) {
         $contents .= "\n■request\n".$request."\n";
     }
     $contents .= "\n";
-    file_put_contents(dirname(__FILE__)."/logs/api_log.".date('Ymd'), $contents, FILE_APPEND | LOCK_EX);
+    file_put_contents(dirname(__FILE__)."/../../api_logs/api_log.".date('Ymd'), $contents, FILE_APPEND | LOCK_EX);
 }
 
 /**
