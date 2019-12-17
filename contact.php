@@ -11,14 +11,18 @@ if (!check_domain($domain)) {
 // メソッドチェック
 if (!check_method('POST')) {
     output_log("メソッドチェックエラー"."\n■method\n".$_SERVER['REQUEST_METHOD'], $request_body);
-    exit_error(403);
+    exit_error(405);
 }
 
 // リクエストパラメータ
 $request_body = file_get_contents('php://input');
 $request_params = decode_json_request($request_body);
-if (json_last_error() != JSON_ERROR_NONE) {
-    output_log("JSONデコードエラー"."\n■message\n".json_last_error_msg(), $request_body);
+if (!$request_params) {
+    output_log("JSONデコードエラー(1回目)"."\n■message\n".json_last_error_msg(), $request_body);
+    $request_params = decode_json_request($request_body, true);
+}
+if (!$request_params) {
+    output_log("JSONデコードエラー(2回目)"."\n■message\n".json_last_error_msg(), $request_body);
     exit_error(400);
 }
 

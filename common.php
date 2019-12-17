@@ -124,7 +124,7 @@ function output_log($message, $request = NULL) {
 /**
  * ドメインチェック
  */
-function check_domain($domain){
+function check_domain($domain) {
     if (isset($_SERVER['HTTP_ORIGIN'])) {
         if (strpos($_SERVER['HTTP_ORIGIN'], $domain) === false) {
             return false;
@@ -141,7 +141,7 @@ function check_domain($domain){
 /**
  * メソッドチェック
  */
-function check_method($method){
+function check_method($method) {
     if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
         if (isset($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_METHOD'])) {
             header("Access-Control-Allow-Methods: ".$method);
@@ -160,17 +160,19 @@ function check_method($method){
 /**
  * JSONデコード
  */
-function decode_json_request($request){
-    $json = str_replace(array("\n","\r"), "", $request); 
-    $json = preg_replace('/([{,]+)(\s*)([^"]+?)\s*:/', '$1"$3":', $json);
-    $json = preg_replace('/(,)\s*}$/','}', $json);
+function decode_json_request($request, $reshape = false) {
+    $json = str_replace(array("\n", "\r"), "", $request);
+    if ($reshape) {
+        $json = preg_replace('/([{,]+)(\s*)([^"]+?)\s*:/', '$1"$3":', $json);
+        $json = preg_replace('/(,)\s*}$/', '}', $json);
+    }
     return json_decode($json, true);
 }
 
 /**
  * メールアドレスチェック
  */
-function check_mail($email){
+function check_mail($email) {
     if (preg_match("/^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/", $email)) {
         return true;
     }
